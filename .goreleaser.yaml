@@ -1,0 +1,25 @@
+version: 2
+
+
+before:
+  hooks:
+    - gzip -f -n -k -9 ./man/{{ .ProjectName }}.1
+
+
+
+
+builds:
+  - skip: true
+
+
+release:
+  mode: replace
+
+
+announce:
+  # Requires TELEGRAM_TOKEN env var
+  telegram:
+    enabled: true
+    chat_id: -1002950691807
+    message_template: '[{{ mdv2escape .ProjectName }} {{ mdv2escape .Tag }}]({{ mdv2escape .ReleaseURL }}) is out{{ mdv2escape "!" }}'
+
