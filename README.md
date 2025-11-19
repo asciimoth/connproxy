@@ -3,6 +3,43 @@
 
 A simple net.Listener <-> net.Conn proxy
 
+## Example
+Launch this code and run `curl 127.0.0.1:8080`
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"net"
+	"os"
+	"os/signal"
+
+	"github.com/asciimoth/connproxy"
+)
+
+func main() {
+	listener, err := net.Listen("tcp4", "127.0.0.1:8080")
+	if err != nil {
+		panic(err)
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+	fmt.Println("Starting TCP proxy")
+	connproxy.Proxy{
+		Accept: listener.Accept,
+		Dial: func(_ context.Context) net.Conn {
+			fmt.Println("New outgoing conn")
+			conn, err := net.Dial("tcp4", "google.com:http")
+			if err != nil {
+				return nil
+			}
+			return conn
+		},
+	}.Run(ctx)
+	fmt.Println("Proxy stopped")
+}
+```
 
 
 ## License
